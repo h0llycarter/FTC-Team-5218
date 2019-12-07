@@ -1,6 +1,5 @@
-package opmodes.LM0;
+package opmodes.LM2;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -14,9 +13,8 @@ import team25core.RobotEvent;
 import team25core.TankMechanumControlScheme;
 import team25core.TeleopDriveTask;
 
-@TeleOp(name = "5218 LM0 Teleop")
-@Disabled
-public class MozartLM0Teleop extends Robot {
+@TeleOp(name = "5218 LM2 Teleop")
+public class RachmaninoffLM2Teleop extends Robot {
     // teleop with the mecanum drivetrain and linear lift
     // active wheel intake
 
@@ -37,16 +35,14 @@ public class MozartLM0Teleop extends Robot {
     private TeleopDriveTask driveTask;
     private DcMotor lift;
     private Servo claw;
-    private Servo susan;
     private Servo leftArm;
     private Servo rightArm;
 
-    public void handleEvent (RobotEvent e) {
+    public void handleEvent(RobotEvent e) {
 
     }
 
-    public void init()
-    {
+    public void init() {
         frontLeft = hardwareMap.get(DcMotor.class, "frontLeft");
         frontRight = hardwareMap.get(DcMotor.class, "frontRight");
         backLeft = hardwareMap.get(DcMotor.class, "backLeft");
@@ -62,12 +58,10 @@ public class MozartLM0Teleop extends Robot {
         driveTask = new TeleopDriveTask(this, scheme, frontLeft, frontRight, backLeft, backRight);
         lift = hardwareMap.dcMotor.get("lift");
         claw = hardwareMap.servo.get("claw");
-        susan = hardwareMap.servo.get("susan");
     }
 
     @Override
-    public void start()
-    {
+    public void start() {
         this.addTask(driveTask);
 
         // GAMEPAD 2
@@ -79,31 +73,36 @@ public class MozartLM0Teleop extends Robot {
         this.addTask(new GamepadTask(this, GamepadTask.GamepadNumber.GAMEPAD_2) {
             public void handleEvent(RobotEvent e) {
                 GamepadEvent event = (GamepadEvent) e;
-                if (event.kind == EventKind.LEFT_BUMPER_DOWN) {
-                    claw.setPosition(HisaishiCalibration.OLD_CLAW_OPEN);
-                } else if (event.kind == EventKind.LEFT_TRIGGER_DOWN) {
-                    claw.setPosition(HisaishiCalibration.OLD_CLAW_CLOSE);
-                } else if (event.kind == EventKind.BUTTON_A_DOWN) {
-                    susan.setPosition(HisaishiCalibration.SUSAN_OUT);
-                } else if (event.kind == EventKind.BUTTON_B_DOWN) {
-                    susan.setPosition(HisaishiCalibration.SUSAN_STOW);
-                } else if (event.kind == EventKind.BUTTON_X_DOWN) {
-                    leftArm.setPosition(HisaishiCalibration.ARM_LEFT_STOW);
-                    //rightArm.setPosition(HisaishiCalibration.ARM_RIGHT_STOW);
-                } else if (event.kind == EventKind.BUTTON_Y_DOWN) {
-                    leftArm.setPosition(HisaishiCalibration.ARM_LEFT_DOWN);
-                    //rightArm.setPosition(HisaishiCalibration.ARM_RIGHT_DOWN);
+                switch (event.kind) {
+                    case LEFT_BUMPER_DOWN:
+                        claw.setPosition(HisaishiCalibration.NEW_CLAW_OPEN);
+                        break;
+                    case LEFT_TRIGGER_DOWN:
+                        claw.setPosition(HisaishiCalibration.NEW_CLAW_CLOSE);
+                        break;
+                    case BUTTON_X_DOWN:
+                        leftArm.setPosition(HisaishiCalibration.ARM_RIGHT_STOW);
+                        rightArm.setPosition(HisaishiCalibration.ARM_RIGHT_STOW);
+                        break;
+                    case BUTTON_Y_DOWN:
+                        leftArm.setPosition(HisaishiCalibration.ARM_LEFT_DOWN);
+                        rightArm.setPosition(HisaishiCalibration.ARM_LEFT_DOWN);
+                        break;
                 }
+
             }
         });
 
         this.addTask(new GamepadTask(this, GamepadTask.GamepadNumber.GAMEPAD_1) {
             public void handleEvent(RobotEvent e) {
                 GamepadEvent event = (GamepadEvent) e;
-                if (event.kind == EventKind.BUTTON_A_DOWN) {
-                    driveTask.slowDown(false);
-                } else if (event.kind == EventKind.BUTTON_B_DOWN) {
-                    driveTask.slowDown(true);
+                switch (event.kind) {
+                    case BUTTON_A_DOWN:
+                        driveTask.slowDown(false);
+                        break;
+                    case BUTTON_B_DOWN:
+                        driveTask.slowDown(true);
+                        break;
                 }
             }
         });
